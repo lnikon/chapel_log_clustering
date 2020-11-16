@@ -1,0 +1,40 @@
+Log file path: Windows_CBS_Log.log
+Log line count: 2000
+==================== Statistics ====================
+Method: block_distributed
+Clusters found: 35
+Logs in each cluster: skipped...
+====================================================
+
+________________________________________________________
+Executed in  286.77 millis    fish           external 
+   usr time  930.90 millis  372.00 micros  930.53 millis 
+   sys time    6.84 millis  143.00 micros    6.70 millis 
+
+nikon@nikon ~/t/l/algorithm> time ./logclustering --logLineCount 2000 --logFilePath Windows_CBS_Log.log --similarityThreshold 0.4 --launchType=data_parallel --printStatistics=true
+Log file path: Windows_CBS_Log.log
+Log line count: 2000
+==================== Statistics ====================
+Method: data_parallel
+Clusters found: 35
+Logs in each cluster: skipped...
+====================================================
+
+________________________________________________________
+Executed in  277.14 millis    fish           external 
+   usr time  907.89 millis  188.00 micros  907.70 millis 
+   sys time   10.00 millis   66.00 micros    9.93 millis 
+
+nikon@nikon ~/t/l/algorithm> time ./logclustering --logLineCount 2000 --logFilePath Windows_CBS_Log.log --similarityThreshold 0.4 --launchType=serial --printStatistics=true
+Log file path: Windows_CBS_Log.log
+Log line count: 2000
+==================== Statistics ====================
+Method: serial
+Clusters found: 33
+Logs in each cluster: skipped...
+====================================================
+
+________________________________________________________
+Executed in    2.60 secs   fish           external 
+   usr time    2.57 secs  361.00 micros    2.57 secs 
+   sys time    0.01 secs  131.00 micros    0.01 secs 
