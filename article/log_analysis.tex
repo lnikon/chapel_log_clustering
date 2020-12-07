@@ -1,0 +1,159 @@
+\documentclass{article}
+\usepackage{svg}
+\usepackage{color}
+\usepackage[cache=false]{minted}
+\usepackage{amsmath}
+\renewcommand{\theequation}{\thesection.\arabic{equation}}
+\title{Distributed generic log clustering in PGAS model using Chapel}
+\author{Vahag Bejanyan} 
+\begin{document}
+
+\maketitle
+\pagenumbering{gobble}
+\newpage
+\pagenumbering{arabic}
+
+\section{Introduction}
+Log files contain an enormous amount of information about the system and events that happen inside it. This information, if properly processed, can give many insights about the overall state of the system or can help to identify the root cause of the problems. Research has been done in past years concentrated around log analysis as anomaly detection[1], troubleshooting[2], vulnerability analysis[3]. Such analysis usually concentrated around specific logs file e.g. Apache Access Logs[4] which reduces generality of the data can be processed using algorithms provided. The main aim of this work is to provide analysis and implementation of a distributed generic log clustering algorithm in the PGAS model with the use of Chapel. First an brief description of a related work and chosen methodology are given. Then several Chapel implementations of a algorithm are given with detailed description of a language and model details. In the end, algorithm evaluation and experimental results are presented.
+
+\section{Related Work}
+In [5] a serial implementation for a generic log clustering algorithm is given. The algorithm uses the Gower index to compute the similarity between two log lines, then based on predefined thresholds constructs clusters of logs in an iterative manner.
+
+\section{Methodology}
+\subsection{Problem Description}
+Current work tries to improve the algorithm given in [5] in a number of ways. In the scope of a this work several improvements and additions will be made, such as:
+\begin{enumerate}
+	\item{Provide distributed version of log clustering algorithm while parallelize it across individual computation nodes.}
+	\item{Provide highly configurable cloud based service which will give access to the clustering functionality.}
+\end{enumerate}
+
+\subsection{Metric and tokenization}
+When dealing with generic semi-structured data then similarity measure takes a major role in qualifying clusterization characteristics. As a volume of a log data can reach to petabytes the asymptotic complexity of a algorithm starts to play even more crucial role as small runtimes in tasks realted to log clustering are expected. This implies that to be able to solve log clustering problem in a meaningful runtime the clustering accuracy may not be very high. Implied algorithm is iterative in nature. To be able decide to which cluster the current log line belongs to the similarity between log line and each of the existing clusters should be computed. Several ways of computing log line and cluster similarity are possible. Simplest approach is to compute similarity between each item present in the cluster and a current log line. *** GIVE AN ASYMPTOTIC EVAL HERE**. This approach will decrease the performance of the algorithm highly. The other way is to assign static representive to each cluster, as described in [5]. In this case the similarity between current log line and a cluster can be computed quickly, no matter how large the cluster is. This approach will imply decreasead clusterization accuracy then can be obtained using the first approach. As already noted, the algorithm should be applicable to the generic data, so because of that as a similarity measure between two log lines Gower Index was used. It behaves well on semi-structured data and is not computationally intensive. The formal definition of it is given in \ref{GowerIndex}: 
+\begin{equation}\label{GowerIndex}
+	Gower(a, b)=\sum_{i=1}^{n}w_{i}*T(a_{i}, b_{i})
+\end{equation}
+
+where $a, b$ are to string, $n=max(a, b)$, $w_{i}$ is a weight assigned to each token and equal to $0.5$ by default and $T(a, b)$ is defined as:
+\begin{equation}\label{TokenSimilarity}
+	T(a, b)=\begin{cases}
+		1& \text{if $a_{i} = b_{i}$},\\
+		0& \text{otherwise}
+	\end{cases}
+\end{equation}
+for each $i=1..n$.
+
+\subsection{Chapel Implementation}
+In this section common abstractions that being used in all the implementations will described.
+
+\subsubsection{Chapel Implementations}
+\begin{listing}[H]
+\begin{minted}[tabsize=4,linenos]{chapel}
+record Cluster {
+  /* Properties */
+  var logs: list[string];
+
+  /* Methods */
+  proc isSimilarTo(log: string);
+  proc append(log: string);
+  proc count();
+  proc at(ind: int);
+}
+\end{minted}
+\caption{Cluster abstraction in Chapel}
+\end{listing}
+
+This record is used to store all the log lines that are belonging to the same cluster.
+The importat method is \mintinline{chapel}{isSimiarTo(log: string)} which compares given log line
+to its representive. In the three Chapel implementations given below, the main difference between all of them is in the use of the Chapel features such as \mintinline{chapel}{forall} loops or data distributions. The part presented in \ref{SequentialImplementation} with lines \mintinline{chapel}{5-18} is same for all and hence will be skipped for the other two listings.
+
+\subsubsection{Sequential Implementation}\label{SequentialImplementation}
+The listing \ref{CodeSequentialImplementation} is so far the simplest implementation and almost repeats what had been said in a sectons above. In this listing on line \mintinline{chapel}{2} an array of logs is beaing read from a file. Each array elements represents a single log line. Then on \mintinline{chapel}{3} line an empty array of a clusters is constructed and through serial implementation over log lines filled up with clusters. At each iteration on line \mintinline{chapel}{7} current log line is compared for similarity to all the clusters. Initially, no cluster exists, so the first one will be created on line \mintinline{chapel}{15}. If similarity between log line and current cluster is less then some prespecified threshold, then cluster is found and the log line is appened to that cluster on line \mintinline{chapel}{9}.
+\begin{listing}[H]
+\begin{minted}[tabsize=4,linenos]{chapel}
+proc clusterSerial() {
+	var logs = readLogTokenized(logFilePath, logLineCount);
+	var clusters: list[Cluster];
+	for log in logs {
+		var foundCluster: bool = false;
+		for cluster in clusters {
+			foundCluster = cluster.isSimilarTo(log);
+			if foundCluster {
+				cluster.append(log);
+				break;
+			}
+		}
+
+		if !foundCluster {
+			var cluster = new Cluster();
+			cluster.append(log);
+			clusters.append(cluster);
+		}
+	}
+
+	return clusters;
+}
+\end{minted}
+\caption{Sequential log clustering}
+\label{CodeSequentialImplementation}
+\end{listing}
+In the listing \ref{DataParallelImplementationCode} data parallel version of log clustering algorithm is presented. As already said data-parallel and block-distributed versions are differ from the serial implementation in how the work is divided between tasks. In serial implementation there is only one task which processes all logs. But with Chapels \mintinline{chapel}{forall} loop construct it's possible to process all the log lines in a data-parallel manner. Esentially, number of threads equal to the hardware supported threads will be created under the hood and work of processing \mintinline{chapel}{logs} vector will be divided nearly equally between all these tasks. In other words, each task will process it's portion of \mintinline{chapel}{logs} array. Of course, there is possibility for data races. Chapel \mintinline{chapel}{ref} keyword used on line \mintinline{chapel}{4} ensures that all read/write access to the \mintinline{chapel}{clusters} arrays will be synchronized. So with this example we can imply that it is extremly easy to parallelize work in data-parallel fashion, as Chapel provides built-in features for that and there is no need for explicit thread creation, synchronization and joining.
+\begin{listing}[H]
+\begin{minted}[tabsize=4,linenos]{chapel}
+proc clusterDataParallel() {
+	var logMatrix = readLogTokenized(logFilePath, logLineCount);
+	var clusters: list[Cluster];
+	forall log in logMatrix with (ref clusters) {
+		// Skipped ...
+	}
+
+	return clusters;
+}
+\end{minted}
+\caption{Data Parallel Log Clustering}
+\label{DataParallelImplementationCode} 
+\end{listing}
+
+In the listing \ref{ParallelBlockDistributed} a parallel block-distributed version of a log clustering algorithm is presented. On line \mintinline{chapel}{1} a 1 dimensional domain \mintinline{chapel}{Space} is declared which is used in \mintinline{chapel}{readLogTokenizedBlockedDistributed} procedure to initialize block distributed array \mintinline{chapel}{BA}. In our case array \mintinline{chapel}{BA} will be distributed accross Chapels provided \mintinline{chapel}{Locales} where each \mintinline{chapel}{Locale} is a single computation node. After \mintinline{chapel}{BA} is read and initialized on line \mintinline{chapel}{2} an empty array of clusters is created on line \mintinline{chapel}{3}. After that the block distributed array is being iterated in a data parallel fashion accross previously defined domain space by use of \mintinline{chapel}{forall} loop construct. At each iteration step an index \mintinline{chapel}{logIdx} is retreieved from a index set distribution, which has affinity to the current \mintinline{chapel}{Locale}.
+\begin{listing}[H]
+\begin{minted}[tabsize=4,linenos]{chapel}
+const Space = {0..logLineCount};
+const BlockSpace = Space dmapped Block(boundingBox=Space);
+var BA: [BlockSpace] string;
+
+proc clusterBlockDistributed() {
+	readLogTokenizedBlockedDistributed(logFilePath, logLineCount);
+	var clusters: list[Cluster];
+	forall logIdx in BlockSpace with (ref clusters) {
+        var log = BA[logIdx];
+		// Skipped ...
+	}
+
+	return clusters;
+}
+\end{minted}
+\caption{Block Distributed Clustering}
+\label{ParallelBlockDistributed}
+\end{listing}
+
+\section{Experimental Evaluation}\label{ExperimentalEvaluationSection}
+
+\begin{figure}[H]
+    \centering
+    \def\svgwidth{\columnwidth}
+    \input{runtime_vs_logsize.pdf_tex}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \def\svgwidth{\columnwidth}
+    \input{clusterscount_vs_logsize.pdf_tex}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \def\svgwidth{\columnwidth}
+    \input{clusterscount_vs_similaritythreshold.pdf_tex}
+\end{figure}
+
+\end{document}
+
