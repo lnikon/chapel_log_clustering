@@ -6,7 +6,7 @@ To build the program you need to have correctly setup $CHPL_HOME.
 Build instruction:
 
 ```sh
-$HOME/projects/chapel-1.22.1/bin/linux64-x86_64/chpl logclustering.chpl
+${CHPL_HOME}/bin/linux64-x86_64/chpl logclustering.chpl
 ```
 
 ## Usage
