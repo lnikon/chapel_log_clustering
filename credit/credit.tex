@@ -4,8 +4,9 @@
 \usepackage[cache=false]{minted}
 \usepackage{afterpage}
 \usepackage{graphicx}
-\usepackage{biblatex}
+\usepackage[backend=biber]{biblatex}
 \usepackage[utf8]{inputenc}
+\usepackage{hyperref}
 
 \bibliography{refs.bib}
 
@@ -23,8 +24,6 @@
 
 \begin{document}
 
-
-
 \maketitle
 \pagenumbering{gobble}
 \newpage
@@ -33,28 +32,28 @@
 \tableofcontents
 \blankpage
 
-\section{Introduction}
-Graphs are playing an emerging role in the field of Computer Science. Various problems can be modeled and studied as graphs\cite{fouss_saerens_shimbo_2016}. Hence, to be able to solve large graph problems effectively the fast, stable, and accurate algorithms, new computation models and frameworks are needed to express graph-based computations and simulations. Often graphs can reach up to hundreds of millions of vertices in size, hence simple serial implementations are not feasible for such cases and parallel and distributed algorithms are needed. One of the widely used and adopted models to express distributed computations is the Message Passing Interface(hereafter MPI) protocol. In essence, MPI provides a generic API through which various computation nodes can be grouped into communicator groups and exchange messages through both synchronous and asynchronous interfaces. Partitioned Global Address Space(hereafter PGAS) models act as a new alternative for distributed scalable computing. In future sections of this document various PGAS powered models such as Chapel and UPC++ will be described. An overview of actual research related to PGAS powered graph algorithms and models will be given. After this, research objectives will be sited alongside the action plan.
+\chapter{Introduction}
+Graphs are playing an emerging role in the field of Computer Science. Various problems can be modeled and studied as graphs\cite{fouss_saerens_shimbo_2016}. Hence, to be able to solve large graph problems effectively the fast, stable, and accurate algorithms, new computation models and frameworks are needed to express graph-based computations and simulations. Often graphs can reach up to hundreds of millions of vertices in size, hence simple serial implementations are not feasible for such cases. One of the possible ways to overcome these limitations is the use of shared memory models for parallel programming\cite{patterson_hennessy}. Using shared memory parallel programming it would be possible to explore the computational power of all the cores present on a chip rather than limiting computation in the scope of one core. On the other hand, when dealing with large data analytics problems\cite{hadoop}\cite{mapreduce}, volumes of the dataset can reach petabytes, and the need for cluster computing and huge memory storages arise.  One of the widely used and adopted models to express distributed computations is the Message Passing Interface(hereafter MPI) protocol. In essence, MPI provides a generic API through which various computation nodes can be grouped into communicator groups and exchange messages through both synchronous and asynchronous interfaces. Another important aspect of the distributed programming approach is the proper selection of a distributed memory management model\cite{dsmmng}. These models for the distributed shared memory management can either be centrilized or distributed and on their own distributed models are either fixed or dynamic. The model chose for the management of distributed shared memory can hugely affect the performance, energy consumption, and stability of the overall system. Partitioned Global Address Space(hereafter PGAS) models act as a new alternative for distributed scalable computing. In future sections of this document various PGAS powered models such as Chapel and UPC++ will be described. An overview of actual research related to PGAS powered graph algorithms and models will be given. Research objectives will be sited.
 
 \blankpage
-\section{Research objectives}
+\chapter{Research objectives}
 In the scope of the planned research following objectives are set:
 
 \begin{enumerate}
 	\item Research opportunities that PGAS powered computation models provide for HPC.
-	\item Investigate how existing distributed algorithms can be benefited by the use of PGAS based models.
-	\item Research, develop, and evaluate distributed data structures and algorithms on the PGAS model.
+	\item Investigate Performance and Energy Efficiency of the distributed graph processing algorithms for the PGAS Programming Model for HPC Graph processing in comparison to MPI and MPI+PGAS
+	\item Performance and Energy Efficiency evaluations of distributed graph processing algorithms for Chapel and PGAS.
 	\item Study distributed graph algorithms in the PGAS model.
-	\item Identify benefits for high-performance graph processing in the PGAS model.
-	\item Study and develop PGAS powered frameworks for HPC, graph analysis, and graph-theoretic machine learning
+	\item A methods and SaaS Cloud Services for distributed graph processing algorithms.
+	\item Study and develop PGAS powered frameworks for HPC, graph analysis, and graph-theoretic machine learning.
 \end{enumerate}
 
 \blankpage
-\section{Background}
-\subsection{Overview of Parallel Programming Models}
-\subsubsection{Shared Memory Models}
+\chapter{Background}
+\section{Parallel Programming Models}
+\subsection{Shared Memory Models}
 This model is based on shared memory systems, where each memory location is accessible by every computation node. Usually, multithreaded programming models are implemented as a shared memory system. In this model, any memory location is globally accessible and control is synchronized through the usual synchronization primitives like mutexes. Many languages like C++11 provide an Abstract Memory Model which alongside its standardized threads support be used in shared memory system programming. Other examples are Pthreads and OpenMP which both provide API for multithreaded execution in shared memory systems.
-\subsubsection{Distributed Memory Models}
+\subsection{Distributed Memory Models}
 In this model, each processor maintains, its own local memory and knows nothing about other computation units.
 To be able to communicate in this model a message-passing protocol(like MPI) should be established. For distributed memory model computing MPI provides a rich set of features such as:
 \begin{enumerate}
@@ -138,6 +137,7 @@ const BlkCycSpace = Space dmapped BlockCyclic(startIdx=Space.low,
 var BCA: [BlkCycSpace] int;
 \end{minted}
 \caption{Examples of Index Distributions in Chapel}
+\label{ChapelExamples}
 \end{listing}
 
 On the other side, irregular distribution can play a significant role in a construction of irregular data structures such as trees or hashmaps. To achieve this UPC++\cite{upcpp} achieves this in terms for \textit{Global Pointers}, \textit{futures} and \textit{distributed objects}. UPC++ also leverages \textit{1-sided communication}, which can lead to better performance because of lock constraints on package ordering and \textit{RPC}. UPC++ provides several ways for synchronizing activities, namely \textit{barriers} and \textit{asynchronous barriers} which are used in couple with futures. Below given an example implementation of distributed hashmap using UPC++ and C++.
@@ -187,11 +187,11 @@ However, current PGAS models don't provide any standard irregular distributions 
 This model is tightly connected to the \ref{DataDistributionModelSubParagraph} as it describes how data is distributed across places, represented, declared, and accessed. For example, in the case of regular distributions, a concept of local and global indexes is presented. Also, a distinction in global data access syntax is present, then such access is called explicit.
 
 \blankpage
-\section{Related Work}
+\chapter{Related Work}
 The research was done to investigate results that already present in the area of PGAS powered models, and particularly, in the area of graph algorithms and analysis. In the rest of this section, several articles and projects that are in the area of interest will be described.
-\subsection{Chapel Programming Language}
+\section{Chapel Programming Language}
 One of the projects that are being actively developed and are in the area of interest is a Chapel, a Productive Parallel Programming Language. Chapel inherits and implements many of the characteristics of the PGAS model described above. Chapel provides many built-in language features and modules that are simplifying parallel and distributed computing. A good example of such functionality are \textit{domains} and \textit{distributions}.
-\subparagraph{Domains}w\label{DomainsSubParagraph}
+\paragraph{Domains}\label{DomainsSubParagraph}
 From Chapel's documentation, it's known that domain is a first-class representation of an index set used to specify iteration spaces, define arrays, and aggregate operations, such as slicing. Domains can be rectangular and multidimensional and thus each dimension can be specified in terms of ranges. For example, to specify a 3D dimensional domain with equal dimensions, the Chapel provides the following syntax:
 
 \begin{listing}[H]
@@ -204,7 +204,7 @@ var RD: domain(3) = {1..n, 1..n, 1..n};
 
 Also Chapel provides support for the \textit{sparse} domains. They are usually stored in a Compressed Sparse Row(CSR) format. Support for this kind of features in a combination with its reach support for parallel and distributed computing makes a Chapel a very interesting candidate for numerical algorithms, simulations, and analysis of sparse graphs.
 
-\subparagraph{Distributions} Distributions are usually used in a combination with \ref{DomainsSubParagraph}. They are used to describe how a domain is distributed over the computing grid.
+\paragraph{Distributions} Distributions are usually used in a combination with \ref{DomainsSubParagraph}. They are used to describe how a domain is distributed over the computing grid.
 Chapel comes with a reach set of standard distributions, such as:
 
 \begin{enumerate}
@@ -216,9 +216,9 @@ Chapel comes with a reach set of standard distributions, such as:
 	\item ReplicatedDim
 \end{enumerate}
 
-Examples use cases for these are provided in \ref{ChapelExamples}. The chapel also provides support for replicated distributions. The main difference from the other distributions is that this one stores all domain indices per local, by default, targeting all locales. And similarly, an array declared over a domain with such distribution will store copies of all its items per local. Such an array is called replicated and each locale's copy of such array or domain is called replicand.
+Examples use cases for these are provided in the listing \ref{ChapelExamples}. The chapel also provides support for replicated distributions. The main difference from the other distributions is that this one stores all domain indices per local, by default, targeting all locales. And similarly, an array declared over a domain with such distribution will store copies of all its items per local. Such an array is called replicated and each locale's copy of such array or domain is called replicand.
 
-\subsection{UPC++}
+\section{UPC++}
 UPC++\cite{upcpp} presents itself as an PGAS extension for C++. UPC++ is implemented in a "compiler-free" approach as a library with reach use of C++ templates. This approach has several advantages, in particular, it allows compilers such as Clang or GCC to perform reach optimizations that they support and at the same time don't depend on data dependencies.
 UPC++ incorporates the SPMD approach, described in previous sections. A unit of execution in UPC++ is called \textit{thread} and can be implemented in terms of OS-level threads or Pthreads. As UPC++ is SPMD powered, that number of threads is fixed at execution time.
 UPC++ provides \textit{shared} type qualifiers to mark a scalar or array as shared. In the case of an array, they are implicitly shared in a block-cyclic fashion and such flexibility as with Chapel programs is not present here. Also UPC++ provides \textit{global pointers} to point to the shared memory locations. In a global address space model that this framework provides, each thread has associated with two kinds of address segments \textit{private} and \textit{shared}. This is illustrated in the figure below:
@@ -228,7 +228,7 @@ UPC++ provides \textit{shared} type qualifiers to mark a scalar or array as shar
 	\caption{Global Address Space Model}
 \end{figure}
 
-\subsection{Chapel Hypergraph Library}
+\section{Chapel Hypergraph Library}
 The Chapel Hypergraph Library provides a Chapel implementation of abstractions to work with hypergraphs and several algorithms implemented in the PGAS model. In related research \cite{chgl} authors present an experimental evaluation of three hypergraph generation algorithms, namely:
 
 \begin{enumerate}
@@ -239,13 +239,13 @@ The Chapel Hypergraph Library provides a Chapel implementation of abstractions t
 
 For example, benchmarks of (ER) on the shared-memory model show a linear scaling when the number of cores is increasing by a power of two. On the opposite side, in distributed memory benchmark execution time increases because of constant communication time introduced into the program.
 
-\subsection{Arkouda}
+\section{Arkouda}
 Arkouda\cite{arkouda} is another good example of a scientific computing library for Chapel. The core part of an Arkouda is constructed as a compact, highly scalable Chapel interpreter. This interpreter implements a powerful set of data science primitives. Interpreter consists of the dispatcher, modular data transformations, and zero-copy, in-memory object-store. In some sense, Arkouda tries to implement NumPy like libraries in Chapel for massive HPC.
 
-\subsection{BCL}
+\section{BCL}
 BCL\cite{bcl} is a cross-platform distributed container library written in C++ using UPC++. The main aim of this library is to provide a set of generic, reusable high-performance \textit{irregular} data structures. BCL tries to fill that gap in libraries that are backed by MPI or PGAS and implemented their support using one-sided communication. Additionally, BCL can be backed by GASNet-EX, OpenSHMEM, UPC++. 
 
-\subsection{GraphBLAS and Chapel}
+\section{GraphBLAS and Chapel}
 Basic Linear Algebra Subprograms(BLAS)\cite{blas} is a collection of highly optimized primitives, building blocks for operations on vectors and matrices. GraphBLAS\cite{graphblasmath} is a project whose aim is to express graph algorithms using concepts from linear algebra and linear algebraic operations. In \cite{graphlinalg} necessary background in this field and basic graph algorithms based on linear algebra operations are expressed. In another research, \cite{azadb17a} a detailed discussion and analysis of possible GraphBLAS API Chapel implementation are given.
 
 \printbibliography
