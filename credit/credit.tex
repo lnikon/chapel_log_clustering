@@ -33,20 +33,31 @@
 \blankpage
 
 \chapter{Introduction}
-Graphs are playing an emerging role in the field of Computer Science. Various problems can be modeled and studied as graphs\cite{fouss_saerens_shimbo_2016}. Hence, to be able to solve large graph problems effectively the fast, stable, and accurate algorithms, new computation models and frameworks are needed to express graph-based computations and simulations. Often graphs can reach up to hundreds of millions of vertices in size, hence simple serial implementations are not feasible for such cases. One of the possible ways to overcome these limitations is the use of shared memory models for parallel programming\cite{patterson_hennessy}. Using shared memory parallel programming it would be possible to explore the computational power of all the cores present on a chip rather than limiting computation in the scope of one core. On the other hand, when dealing with large data analytics problems\cite{hadoop}\cite{mapreduce}, volumes of the dataset can reach petabytes, and the need for cluster computing and huge memory storages arise.  One of the widely used and adopted models to express distributed computations is the Message Passing Interface(hereafter MPI) protocol. In essence, MPI provides a generic API through which various computation nodes can be grouped into communicator groups and exchange messages through both synchronous and asynchronous interfaces. Another important aspect of the distributed programming approach is the proper selection of a distributed memory management model\cite{dsmmng}. These models for the distributed shared memory management can either be centrilized or distributed and on their own distributed models are either fixed or dynamic. The model chose for the management of distributed shared memory can hugely affect the performance, energy consumption, and stability of the overall system. Partitioned Global Address Space(hereafter PGAS) models act as a new alternative for distributed scalable computing. In future sections of this document various PGAS powered models such as Chapel and UPC++ will be described. An overview of actual research related to PGAS powered graph algorithms and models will be given. Research objectives will be sited.
+Graphs are playing an emerging role in the field of Computer Science. Various problems can be modeled and studied as graphs\cite{fouss_saerens_shimbo_2016}. Hence, to be able to solve large graph problems effectively the fast, stable, and accurate algorithms, new computation models and frameworks are needed to express graph-based computations and simulations. Often graphs can reach up to hundreds of millions of vertices in size, hence simple serial implementations are not feasible for such cases. One of the possible ways to overcome these limitations is the use of shared memory models for parallel programming\cite{patterson_hennessy}. Using shared memory parallel programming it would be possible to explore the computational power of all the cores present on a chip rather than limiting computation in the scope of one core. On the other hand, when dealing with large data analytics problems\cite{hadoop}\cite{mapreduce}, volumes of the dataset can reach petabytes, and the need for cluster computing and huge memory storages arise. Alongside traditional models and specifications for parallel distributed programming e.g. MPI and OpenMPI, there are emerging ones like Chapel with its implementation of the PGAS Model language and powerful abstractions for parallel and distributed computing. One of the widely used and adopted models to express distributed computations is the Message Passing Interface(hereafter MPI) protocol. In essence, MPI provides a generic API through which various computation nodes can be grouped into communicator groups and exchange messages through both synchronous and asynchronous interfaces. Another important aspect of the distributed programming approach is the proper selection of a distributed memory management model\cite{dsmmng}. These models for the distributed shared memory management can either be centralized or distributed and on their own distributed models are either fixed or dynamic. The model chose for the management of distributed shared memory can hugely affect the performance, energy consumption, and stability of the overall system. Partitioned Global Address Space(hereafter PGAS) models act as a new alternative for distributed scalable computing. In future sections of this document various PGAS powered models such as Chapel and UPC++ will be described. An overview of actual research related to PGAS powered graph algorithms and models will be given. Research objectives will be sited.
 
 \blankpage
 \chapter{Research objectives}
 In the scope of the planned research following objectives are set:
 
 \begin{enumerate}
-	\item Research opportunities that PGAS powered computation models provide for HPC.
-	\item Investigate Performance and Energy Efficiency of the distributed graph processing algorithms for the PGAS Programming Model for HPC Graph processing in comparison to MPI and MPI+PGAS
-	\item Performance and Energy Efficiency evaluations of distributed graph processing algorithms for Chapel and PGAS.
+	\item State of the Art Analysis of PGAS powered computation models provide for HPC simulations.
+	\item Investigate Performance and Energy Efficiency of the distributed graph processing algorithms for the PGAS Programming Model in comparison to MPI and MPI+PGAS.
+	\item Evaluate Performance and Energy Efficiency of distributed graph processing algorithms for Chapel and PGAS.
 	\item Study distributed graph algorithms in the PGAS model.
-	\item A methods and SaaS Cloud Services for distributed graph processing algorithms.
+	\item Develop methods and SaaS Cloud Services for distributed graph processing algorithms.
 	\item Study and develop PGAS powered frameworks for HPC, graph analysis, and graph-theoretic machine learning.
 \end{enumerate}
+
+\blankpage
+\chapter{Expected results}
+\begin{enumerate}
+	\item In depth analysis of performance and energy efficiency of distributed graph processing algorithms for the PGAS Programming Model in comparison to MPI and MPI+PGAS and a scientific publication presenting the results.
+	\item In depth analysis of performance and energy efficiency of distributed graph processing algorithms for Chapel and PGAS and a scientific publication presenting the results.
+	\item Algorithm, method and implementation of some types of distributed graphs in the PGAS model and a scientific publication presenting the results.
+	\item SaaS Service for distributed graph processing and a scientific publication presenting the results.
+	\item Machine Learning based method for improvements of performance and energy efficiency in cloud infrastructures and a scientific publication presenting the results.
+\end{enumerate}
+
 
 \blankpage
 \chapter{Background}
